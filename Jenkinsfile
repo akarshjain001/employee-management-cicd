@@ -118,8 +118,6 @@ pipeline {
 
     }
 
-    /*
-
     post {
 
         success {
@@ -141,6 +139,5 @@ pipeline {
         }
 
     }
-    */
 
 }
