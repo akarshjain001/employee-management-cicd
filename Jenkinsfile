@@ -104,7 +104,7 @@ pipeline {
                         [
                             artifactId: ARTIFACT_ID,
                             classifier: '',
-                            file: 'target/Employee-Management-1.0.0-SNAPSHOT.jar',
+                            file: 'target/employee-management-1.0.0-SNAPSHOT.jar',
                             type: 'jar'
                         ]
 
