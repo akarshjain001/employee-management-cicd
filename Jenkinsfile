@@ -9,13 +9,6 @@ pipeline {
 
     environment {
         SONARQUBE_SERVER = 'SonarQube'
-        NEXUS_VERSION = 'nexus3'
-        NEXUS_PROTOCOL = 'http'
-        NEXUS_URL = '13.201.133.54:8081'
-        NEXUS_REPOSITORY = 'maven-snapshots'
-        GROUP_ID = 'com.company'
-        ARTIFACT_ID = 'employee-management'
-        VERSION = '1.0.0-SNAPSHOT'
     }
 
     stages {
@@ -30,90 +23,48 @@ pipeline {
 
         stage('Clean') {
             steps {
-                sh 'mvn clean'
+                sh 'mvn -B clean'
             }
         }
 
         stage('Compile') {
             steps {
-                sh 'mvn compile'
+                sh 'mvn -B compile'
             }
         }
 
         stage('Unit Test') {
             steps {
-                sh 'mvn test'
-            }
-        }
-
-        stage('Package') {
-            steps {
-                sh 'mvn package'
+                sh 'mvn -B test'
             }
         }
 
         stage('SonarQube Analysis') {
-
             steps {
-
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
 
                     sh '''
-                    mvn sonar:sonar \
-                    -Dsonar.projectKey=employee-management \
-                    -Dsonar.projectName=Employee-Management
+                        mvn -B sonar:sonar \
+                        -Dsonar.projectKey=employee-management \
+                        -Dsonar.projectName=Employee-Management
                     '''
 
                 }
-
             }
-
         }
 
-        stage("Quality Gate") {
-
+        stage('Quality Gate') {
             steps {
-
                 timeout(time: 5, unit: 'MINUTES') {
-
                     waitForQualityGate abortPipeline: true
-
                 }
-
             }
-
         }
 
-        stage('Upload Artifact to Nexus') {
-
+        stage('Deploy Artifact to Nexus') {
             steps {
-
-                nexusArtifactUploader(
-
-                    nexusVersion: NEXUS_VERSION,
-                    protocol: NEXUS_PROTOCOL,
-                    nexusUrl: NEXUS_URL,
-                    repository: NEXUS_REPOSITORY,
-                    credentialsId: 'nexus-creds',
-
-                    groupId: GROUP_ID,
-                    version: VERSION,
-
-                    artifacts: [
-
-                        [
-                            artifactId: ARTIFACT_ID,
-                            classifier: '',
-                            file: 'target/employee-management-1.0.0-SNAPSHOT.jar',
-                            type: 'jar'
-                        ]
-
-                    ]
-
-                )
-
+                sh 'mvn -B deploy -DskipTests'
             }
-
         }
 
     }
@@ -124,7 +75,17 @@ pipeline {
 
             slackSend(
                 color: 'good',
-                message: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}\nArtifact uploaded to Nexus."
+                message: """
+✅ *BUILD SUCCESS*
+
+*Job:* ${env.JOB_NAME}
+*Build:* #${env.BUILD_NUMBER}
+
+Artifact successfully deployed to Nexus.
+
+Build URL:
+${env.BUILD_URL}
+"""
             )
 
         }
@@ -133,7 +94,16 @@ pipeline {
 
             slackSend(
                 color: 'danger',
-                message: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+                message: """
+❌ *BUILD FAILED*
+
+*Job:* ${env.JOB_NAME}
+*Build:* #${env.BUILD_NUMBER}
+
+Check Jenkins Console Output:
+
+${env.BUILD_URL}
+"""
             )
 
         }
