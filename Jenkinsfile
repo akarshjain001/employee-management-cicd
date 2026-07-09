@@ -45,10 +45,23 @@ pipeline {
         }
 
         stage('Unit Test') {
-            steps {
-                sh 'mvn -B test'
-            }
+
+    steps {
+        sh 'mvn -B test'
+    }
+
+    post {
+
+        always {
+
+            junit testResults: 'target/surefire-reports/*.xml',
+                  allowEmptyResults: true
+
         }
+
+    }
+
+}
 
         stage('SonarQube Analysis') {
             steps {
