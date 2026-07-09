@@ -2,6 +2,17 @@ pipeline {
 
     agent any
 
+    options {
+
+    buildDiscarder(logRotator(
+        numToKeepStr: '20',
+        artifactNumToKeepStr: '10'
+    ))
+
+    timestamps()
+
+}
+
     tools {
         jdk 'JDK21'
         maven 'Maven3'
