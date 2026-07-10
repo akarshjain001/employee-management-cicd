@@ -15,8 +15,6 @@ pipeline {
 
         timestamps()
 
-        ansiColor('xterm')
-
         timeout(time: 30, unit: 'MINUTES')
 
     }
@@ -39,9 +37,7 @@ pipeline {
         stage('Clean Workspace') {
 
             steps {
-
                 deleteDir()
-
             }
 
         }
@@ -58,7 +54,7 @@ pipeline {
 
         }
 
-        stage('Build, Test & Verify') {
+        stage('Build & Verify') {
 
             steps {
 
@@ -149,7 +145,7 @@ pipeline {
 
 :package: Artifact successfully deployed to Nexus.
 
-:link: *Build URL:*
+:link: Build URL:
 ${env.BUILD_URL}
 """
             )
@@ -170,7 +166,7 @@ ${env.BUILD_URL}
 
 Please check the Jenkins Console Output.
 
-:link: *Build URL:*
+:link: Build URL:
 ${env.BUILD_URL}
 """
             )
