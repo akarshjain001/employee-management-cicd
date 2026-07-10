@@ -18,24 +18,37 @@ pipeline {
         ansiColor('xterm')
 
         timeout(time: 30, unit: 'MINUTES')
+
     }
 
     tools {
+
         jdk 'JDK21'
         maven 'Maven3'
+
     }
 
     environment {
+
         SONARQUBE_SERVER = 'SonarQube'
+
     }
 
     stages {
 
-        stage('Checkout') {
+        stage('Clean Workspace') {
 
             steps {
 
-                cleanWs()
+                deleteDir()
+
+            }
+
+        }
+
+        stage('Checkout Source Code') {
+
+            steps {
 
                 git branch: 'main',
                     credentialsId: 'github-ssh',
@@ -45,31 +58,11 @@ pipeline {
 
         }
 
-        stage('Clean') {
+        stage('Build, Test & Verify') {
 
             steps {
 
-                sh 'mvn -B clean'
-
-            }
-
-        }
-
-        stage('Compile') {
-
-            steps {
-
-                sh 'mvn -B compile'
-
-            }
-
-        }
-
-        stage('Verify & Unit Tests') {
-
-            steps {
-
-                sh 'mvn -B verify'
+                sh 'mvn -B clean verify'
 
             }
 
@@ -128,7 +121,7 @@ pipeline {
 
         }
 
-        stage('Deploy to Nexus') {
+        stage('Deploy Artifact to Nexus') {
 
             steps {
 
@@ -154,9 +147,9 @@ pipeline {
 *Status:* SUCCESS
 *Duration:* ${currentBuild.durationString}
 
-Artifact successfully deployed to Nexus.
+:package: Artifact successfully deployed to Nexus.
 
-*Build URL:*
+:link: *Build URL:*
 ${env.BUILD_URL}
 """
             )
@@ -177,7 +170,7 @@ ${env.BUILD_URL}
 
 Please check the Jenkins Console Output.
 
-*Build URL:*
+:link: *Build URL:*
 ${env.BUILD_URL}
 """
             )
@@ -186,7 +179,7 @@ ${env.BUILD_URL}
 
         always {
 
-            cleanWs()
+            deleteDir()
 
         }
 
