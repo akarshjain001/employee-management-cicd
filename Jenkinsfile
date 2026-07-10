@@ -71,14 +71,6 @@ pipeline {
                         allowEmptyResults: true
                     )
 
-                    recordCoverage(
-                        tools: [
-                            jacoco(
-                                pattern: 'target/site/jacoco/jacoco.xml'
-                            )
-                        ]
-                    )
-
                 }
 
             }
